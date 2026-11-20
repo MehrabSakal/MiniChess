@@ -363,15 +363,51 @@ class BoardRenderer:
         surface.blit(hl_surf, rect)
 
     def _render_last_move_highlight(self, surface: pygame.Surface, move: Move) -> None:
-        p1 = self.get_pixel_pos(*move.start_pos)
-        p2 = self.get_pixel_pos(*move.end_pos)
-        r1 = pygame.Rect(p1[0], p1[1], self.tile_size, self.tile_size)
-        r2 = pygame.Rect(p2[0], p2[1], self.tile_size, self.tile_size)
+        """Highlights origin and destination tiles of the last move with a glowing directional vector."""
+        r1, c1 = move.start_pos
+        r2, c2 = move.end_pos
+        p1 = self.get_pixel_pos(r1, c1)
+        p2 = self.get_pixel_pos(r2, c2)
+        rect1 = pygame.Rect(p1[0], p1[1], self.tile_size, self.tile_size)
+        rect2 = pygame.Rect(p2[0], p2[1], self.tile_size, self.tile_size)
 
-        s = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
-        pygame.draw.rect(s, COLOR_HIGHLIGHT_LAST_MOVE, s.get_rect(), border_radius=4)
-        surface.blit(s, r1)
-        surface.blit(s, r2)
+        # 1. Origin Tile Highlight (Warm amber halo)
+        s1 = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
+        pygame.draw.rect(s1, (255, 200, 60, 65), s1.get_rect(), border_radius=6)
+        pygame.draw.rect(s1, (255, 215, 80, 200), s1.get_rect(), width=2, border_radius=6)
+        surface.blit(s1, rect1)
+
+        # 2. Destination Tile Highlight (Pulsing electric cyan halo)
+        alpha = int(95 + 45 * math.sin(self.pulse_phase))
+        s2 = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
+        pygame.draw.rect(s2, (0, 200, 255, alpha), s2.get_rect(), border_radius=6)
+        pygame.draw.rect(s2, (80, 235, 255, 240), s2.get_rect(), width=3, border_radius=6)
+        surface.blit(s2, rect2)
+
+        # 3. Directional Vector Arrow Connecting Start and End Squares
+        c1_pt = (rect1.centerx, rect1.centery)
+        c2_pt = (rect2.centerx, rect2.centery)
+        dx = c2_pt[0] - c1_pt[0]
+        dy = c2_pt[1] - c1_pt[1]
+        dist = math.hypot(dx, dy)
+        if dist > 8:
+            angle = math.atan2(dy, dx)
+            arrow_len = 14
+            target_pt = (int(c2_pt[0] - 10 * math.cos(angle)), int(c2_pt[1] - 10 * math.sin(angle)))
+            start_pt = (int(c1_pt[0] + 10 * math.cos(angle)), int(c1_pt[1] + 10 * math.sin(angle)))
+
+            # Glowing vector line
+            pygame.draw.line(surface, (0, 220, 255, 220), start_pt, target_pt, 3)
+            # Arrow head
+            p_left = (
+                int(target_pt[0] - arrow_len * math.cos(angle - 0.45)),
+                int(target_pt[1] - arrow_len * math.sin(angle - 0.45))
+            )
+            p_right = (
+                int(target_pt[0] - arrow_len * math.cos(angle + 0.45)),
+                int(target_pt[1] - arrow_len * math.sin(angle + 0.45))
+            )
+            pygame.draw.polygon(surface, (0, 230, 255, 240), [target_pt, p_left, p_right])
 
     def _render_hazard_overlay(self, surface: pygame.Surface, rect: pygame.Rect, effect_type: str) -> None:
         """Draws visual battlefield event effects on tiles."""

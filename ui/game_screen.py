@@ -69,6 +69,7 @@ class GameScreen:
 
         # Fonts
         self.font_title = pygame.font.SysFont("segoeui", 18, bold=True)
+        self.font_btn = pygame.font.SysFont("segoeui", 12, bold=True)
         self.font_body = pygame.font.SysFont("segoeui", 13)
         self.font_small = pygame.font.SysFont("segoeui", 11)
         self.font_mono = pygame.font.SysFont("consolas", 12)
@@ -77,8 +78,64 @@ class GameScreen:
         self.buttons: Dict[str, pygame.Rect] = {}
         self._init_buttons()
 
+        # Match Replay State
+        self.is_replay_mode: bool = False
+        self.replay_states: List[Any] = []
+        self.replay_index: int = 0
+        self.replay_auto_playing: bool = False
+        self.replay_timer: float = 0.0
+        self.replay_buttons: Dict[str, pygame.Rect] = {}
+        self._init_replay_buttons()
+
         # Speed multiplier for AI vs AI
         self.speed_multiplier = 1.0
+
+    def _init_replay_buttons(self) -> None:
+        """Sets up playback buttons for Match Replay mode."""
+        by = self.bottom_panel_rect.y + 44
+        bh = 40
+        cx = self.bottom_panel_rect.centerx
+
+        self.replay_buttons["first"] = pygame.Rect(cx - 365, by, 75, bh)
+        self.replay_buttons["prev"] = pygame.Rect(cx - 280, by, 85, bh)
+        self.replay_buttons["play"] = pygame.Rect(cx - 185, by, 115, bh)
+        self.replay_buttons["next"] = pygame.Rect(cx - 60, by, 85, bh)
+        self.replay_buttons["last"] = pygame.Rect(cx + 35, by, 75, bh)
+        self.replay_buttons["restart"] = pygame.Rect(cx + 120, by, 115, bh)
+        self.replay_buttons["menu"] = pygame.Rect(cx + 245, by, 115, bh)
+
+    def start_replay(self) -> None:
+        """Launches the interactive match replay viewer from Turn 1."""
+        self.is_replay_mode = True
+        self.replay_states = list(self.engine.history_states) + [self.engine.state.clone()]
+        self.replay_index = 0
+        self.replay_auto_playing = True
+        self.replay_timer = 0.0
+        self.selected_pos = None
+        self.selected_piece_legal_moves = []
+        self.event_banner_text = "MATCH REPLAY MODE: AUTO-PLAYING FROM MOVE 1..."
+        self.event_banner_timer = 3.5
+
+    def replay_step_next(self) -> None:
+        if self.replay_index < len(self.replay_states) - 1:
+            self.replay_index += 1
+            cur_move = self.replay_states[self.replay_index].last_move
+            if cur_move:
+                self.board_renderer.trigger_move_animation(cur_move)
+                if cur_move.is_capture:
+                    self.sound_mgr.play("capture")
+                else:
+                    self.sound_mgr.play("move")
+
+    def replay_step_prev(self) -> None:
+        if self.replay_index > 0:
+            self.replay_index -= 1
+            self.sound_mgr.play("move")
+
+    def replay_toggle_play(self) -> None:
+        self.replay_auto_playing = not self.replay_auto_playing
+        self.replay_timer = 0.0
+        self.sound_mgr.play("move")
 
     def _load_background(self) -> None:
         bg_path = os.path.join(ASSETS_DIR, "images", "backgrounds", "arena_tavern.jpg")
@@ -128,6 +185,51 @@ class GameScreen:
 
     def handle_event(self, event: pygame.event.Event) -> Optional[str]:
         """Processes mouse clicks and keyboard shortcuts. Returns action command if any."""
+        if self.is_replay_mode:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mx, my = event.pos
+                for name, rect in self.replay_buttons.items():
+                    if rect.collidepoint(mx, my):
+                        if name == "first":
+                            self.replay_index = 0
+                            self.replay_auto_playing = False
+                            self.sound_mgr.play("move")
+                        elif name == "prev":
+                            self.replay_auto_playing = False
+                            self.replay_step_prev()
+                        elif name == "play":
+                            self.replay_toggle_play()
+                        elif name == "next":
+                            self.replay_auto_playing = False
+                            self.replay_step_next()
+                        elif name == "last":
+                            self.replay_index = len(self.replay_states) - 1
+                            self.replay_auto_playing = False
+                            self.sound_mgr.play("move")
+                        elif name == "restart":
+                            self.is_replay_mode = False
+                            self.engine.start_new_match()
+                            self.selected_pos = None
+                            self.selected_piece_legal_moves = []
+                            self.sound_mgr.play("ability")
+                        elif name == "menu":
+                            self.is_replay_mode = False
+                            return "menu"
+                        return None
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.replay_auto_playing = False
+                    self.replay_step_prev()
+                elif event.key == pygame.K_RIGHT:
+                    self.replay_auto_playing = False
+                    self.replay_step_next()
+                elif event.key == pygame.K_SPACE:
+                    self.replay_toggle_play()
+                elif event.key == pygame.K_ESCAPE:
+                    self.is_replay_mode = False
+                    return "menu"
+            return None
+
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mx, my = event.pos
 
@@ -278,15 +380,31 @@ class GameScreen:
         """Updates game mode loop, AI thinking, animations, and particles."""
         self.particle_sys.update(dt)
 
+        if self.event_banner_timer > 0:
+            self.event_banner_timer -= dt
+
+        # Handle Replay Auto-Play
+        if self.is_replay_mode:
+            if self.replay_auto_playing:
+                self.replay_timer += dt
+                if self.replay_timer >= 1.2:
+                    self.replay_timer = 0.0
+                    if self.replay_index < len(self.replay_states) - 1:
+                        self.replay_step_next()
+                    else:
+                        self.replay_auto_playing = False
+                        last_m = self.replay_states[-1].last_move
+                        txt = last_m.notation() if last_m else "Match Concluded"
+                        self.event_banner_text = f"REPLAY COMPLETE — FINAL MOVE: {txt}"
+                        self.event_banner_timer = 4.0
+            return
+
         # Check for arena event announcement
         if self.engine.state.battlefield_mgr.last_event_announcement:
             self.event_banner_text = self.engine.state.battlefield_mgr.last_event_announcement
             self.event_banner_timer = 4.0
             self.engine.state.battlefield_mgr.last_event_announcement = None
             self.sound_mgr.play("event")
-
-        if self.event_banner_timer > 0:
-            self.event_banner_timer -= dt
 
         # Update mode controller (runs AI if applicable)
         if hasattr(self.mode_controller, "update"):
@@ -302,6 +420,8 @@ class GameScreen:
 
     def render(self, surface: pygame.Surface) -> None:
         """Full frame rendering of the tactical battle arena."""
+        current_state = self.replay_states[self.replay_index] if (self.is_replay_mode and self.replay_states) else self.engine.state
+
         # 1. Background
         if self.bg_image:
             surface.blit(self.bg_image, (0, 0))
@@ -309,10 +429,10 @@ class GameScreen:
             surface.fill(COLOR_BG_DARK)
 
         # 2. Render Left Panel (Red Army)
-        self._render_army_panel(surface, TEAM_RED, self.red_panel_rect)
+        self._render_army_panel(surface, TEAM_RED, self.red_panel_rect, state=current_state)
 
         # 3. Render Right Panel (Blue Army)
-        self._render_army_panel(surface, TEAM_BLUE, self.blue_panel_rect)
+        self._render_army_panel(surface, TEAM_BLUE, self.blue_panel_rect, state=current_state)
 
         # 4. Render Center 7x4 Board
         mx, my = pygame.mouse.get_pos()
@@ -320,10 +440,10 @@ class GameScreen:
 
         self.board_renderer.render(
             surface,
-            self.engine.state,
-            selected_pos=self.selected_pos,
-            legal_moves=self.selected_piece_legal_moves,
-            last_move=self.engine.state.last_move,
+            current_state,
+            selected_pos=self.selected_pos if not self.is_replay_mode else None,
+            legal_moves=self.selected_piece_legal_moves if not self.is_replay_mode else [],
+            last_move=current_state.last_move,
             hovered_pos=hovered_sq
         )
 
@@ -331,16 +451,17 @@ class GameScreen:
         self.particle_sys.draw(surface)
 
         # 6. Render Bottom Action & Abilities HUD
-        self._render_bottom_hud(surface)
+        self._render_bottom_hud(surface, state=current_state)
 
         # 7. Render Floating Event Announcements / Victory Banner
         self._render_floating_announcements(surface)
 
         # 8. Render Mouse Hover Tooltip for Pieces
-        self._render_piece_hover_tooltip(surface, mx, my, hovered_sq)
+        self._render_piece_hover_tooltip(surface, mx, my, hovered_sq, state=current_state)
 
-    def _render_army_panel(self, surface: pygame.Surface, team: str, rect: pygame.Rect) -> None:
+    def _render_army_panel(self, surface: pygame.Surface, team: str, rect: pygame.Rect, state: Optional[Any] = None) -> None:
         """Draws team banner, energy crystals, captured piece rack, and AI telemetry."""
+        active_state = state if state is not None else self.engine.state
         pygame.draw.rect(surface, COLOR_PANEL_BG, rect, border_radius=8)
         border_col = COLOR_RED_PRIMARY if team == TEAM_RED else COLOR_BLUE_PRIMARY
         pygame.draw.rect(surface, border_col, rect, width=2, border_radius=8)
@@ -354,7 +475,7 @@ class GameScreen:
         surface.blit(lbl, (rect.x + 14, rect.y + 8))
 
         # Energy crystal bar
-        energy = self.engine.state.energy_system.get_energy(team)
+        energy = active_state.energy_system.get_energy(team)
         lbl_en = self.font_body.render(f"ENERGY: {energy} / 10 EP", True, COLOR_TEXT_GOLD)
         surface.blit(lbl_en, (rect.x + 14, rect.y + 50))
 
@@ -377,7 +498,7 @@ class GameScreen:
                 pygame.draw.rect(surface, (60, 70, 90), p_rect, width=1, border_radius=3)
 
         # Domination progress
-        dom_turns = self.engine.state.red_consecutive_domination if team == TEAM_RED else self.engine.state.blue_consecutive_domination
+        dom_turns = active_state.red_consecutive_domination if team == TEAM_RED else active_state.blue_consecutive_domination
         lbl_dom = self.font_small.render(f"Domination Streak: {dom_turns} / 3 turns", True, (180, 190, 210))
         surface.blit(lbl_dom, (rect.x + 14, rect.y + 96))
 
@@ -407,7 +528,7 @@ class GameScreen:
         lbl_cap = self.font_small.render("CAPTURED OPPONENTS:", True, COLOR_TEXT_MUTED)
         surface.blit(lbl_cap, (rect.x + 14, rect.y + 150))
 
-        captured = self.engine.state.captured_pieces[team]
+        captured = active_state.captured_pieces[team]
         cx = rect.x + 14
         cy = rect.y + 168
         for p in captured[:8]:
@@ -423,25 +544,45 @@ class GameScreen:
 
         # Render AI Telemetry console inside side panel
         if team == TEAM_RED:
-            metrics = getattr(self.mode_controller, "red_metrics", self.engine.last_ai_metrics if self.engine.state.current_turn == TEAM_RED else None)
-            is_active = (self.engine.state.current_turn == TEAM_RED and not self.engine.state.is_game_over)
+            metrics = getattr(self.mode_controller, "red_metrics", self.engine.last_ai_metrics if active_state.current_turn == TEAM_RED else None)
+            is_active = (active_state.current_turn == TEAM_RED and not active_state.is_game_over)
             self.red_ai_panel.render(surface, metrics, team=TEAM_RED, is_active=is_active)
         else:
-            metrics = getattr(self.mode_controller, "blue_metrics", self.engine.last_ai_metrics if self.engine.state.current_turn == TEAM_BLUE else None)
-            is_active = (self.engine.state.current_turn == TEAM_BLUE and not self.engine.state.is_game_over)
+            metrics = getattr(self.mode_controller, "blue_metrics", self.engine.last_ai_metrics if active_state.current_turn == TEAM_BLUE else None)
+            is_active = (active_state.current_turn == TEAM_BLUE and not active_state.is_game_over)
             self.blue_ai_panel.render(surface, metrics, team=TEAM_BLUE, is_active=is_active)
 
-    def _render_bottom_hud(self, surface: pygame.Surface) -> None:
-        """Renders action buttons, turn status, and special abilities bar."""
+    def _render_bottom_hud(self, surface: pygame.Surface, state: Optional[Any] = None) -> None:
+        """Renders action buttons, turn status, last move, and special abilities bar or replay controls."""
+        current_state = state if state is not None else self.engine.state
         pygame.draw.rect(surface, COLOR_PANEL_BG, self.bottom_panel_rect, border_radius=8)
-        pygame.draw.rect(surface, COLOR_PANEL_BORDER, self.bottom_panel_rect, width=2, border_radius=8)
+        border_col = (0, 200, 255) if self.is_replay_mode else COLOR_PANEL_BORDER
+        pygame.draw.rect(surface, border_col, self.bottom_panel_rect, width=2, border_radius=8)
 
-        # Turn indicator banner
-        turn_team = self.engine.state.current_turn
+        # REPLAY HUD MODE
+        if self.is_replay_mode:
+            self._render_replay_hud(surface, current_state)
+            return
+
+        # LIVE MATCH HUD:
+        turn_team = current_state.current_turn
         team_name = "RED LEGION" if turn_team == TEAM_RED else "BLUE VANGUARD"
         team_col = (255, 100, 110) if turn_team == TEAM_RED else (100, 210, 255)
-        lbl_turn = self.font_title.render(f"TURN {self.engine.state.turn_count} — {team_name}'S TURN", True, team_col)
+        lbl_turn = self.font_title.render(f"TURN {current_state.turn_count} — {team_name}'S TURN", True, team_col)
         surface.blit(lbl_turn, (self.bottom_panel_rect.x + 14, self.bottom_panel_rect.y + 10))
+
+        # LAST MOVE BADGE
+        last_m = current_state.last_move
+        if last_m:
+            badge_x = self.bottom_panel_rect.x + 360
+            badge_y = self.bottom_panel_rect.y + 8
+            note_str = last_m.notation()
+            lbl_lm = self.font_body.render(f"LAST MOVE: {note_str}", True, (255, 230, 120))
+            bw = lbl_lm.get_width() + 24
+            badge_rect = pygame.Rect(badge_x, badge_y, bw, 26)
+            pygame.draw.rect(surface, (28, 34, 50), badge_rect, border_radius=5)
+            pygame.draw.rect(surface, (0, 210, 255), badge_rect, width=1, border_radius=5)
+            surface.blit(lbl_lm, (badge_x + 12, badge_y + 4))
 
         # Action Buttons
         for name, rect in self.buttons.items():
@@ -449,6 +590,44 @@ class GameScreen:
                 self._render_ability_button(surface, name, rect)
             else:
                 self._render_action_button(surface, name, rect)
+
+    def _render_replay_hud(self, surface: pygame.Surface, current_state: Any) -> None:
+        """Draws replay step info and playback control buttons."""
+        total_steps = max(0, len(self.replay_states) - 1)
+        last_m = current_state.last_move
+        move_note = last_m.notation() if last_m else "Initial Army Placement"
+        play_status = "▶ AUTO-PLAYING..." if self.replay_auto_playing else "⏸ PAUSED"
+        status_col = (46, 204, 113) if self.replay_auto_playing else (255, 200, 70)
+
+        # Top banner line
+        lbl_rep = self.font_title.render(f"REPLAY STEP {self.replay_index} / {total_steps}: {move_note}", True, COLOR_TEXT_GOLD)
+        surface.blit(lbl_rep, (self.bottom_panel_rect.x + 14, self.bottom_panel_rect.y + 10))
+
+        lbl_stat = self.font_body.render(play_status, True, status_col)
+        surface.blit(lbl_stat, (self.bottom_panel_rect.right - lbl_stat.get_width() - 20, self.bottom_panel_rect.y + 12))
+
+        # Replay buttons
+        mouse_pos = pygame.mouse.get_pos()
+        for name, rect in self.replay_buttons.items():
+            hov = rect.collidepoint(mouse_pos)
+            if name == "play":
+                bg = (30, 75, 95) if hov else (20, 50, 65)
+                bcol = (0, 220, 255)
+                txt = "⏸ PAUSE" if self.replay_auto_playing else "▶ AUTO PLAY"
+            elif name in ("restart", "menu"):
+                bg = (55, 65, 85) if hov else (35, 42, 58)
+                bcol = (120, 140, 180)
+                txt = "🔄 NEW MATCH" if name == "restart" else "⌂ MENU"
+            else:
+                bg = (45, 55, 75) if hov else (30, 36, 50)
+                bcol = (90, 110, 140)
+                labels = {"first": "⏮ START", "prev": "◀ PREV", "next": "NEXT ▶", "last": "END ⏭"}
+                txt = labels.get(name, name.upper())
+
+            pygame.draw.rect(surface, bg, rect, border_radius=6)
+            pygame.draw.rect(surface, bcol, rect, width=1, border_radius=6)
+            txt_surf = self.font_btn.render(txt, True, COLOR_TEXT_WHITE)
+            surface.blit(txt_surf, (rect.centerx - txt_surf.get_width() // 2, rect.centery - txt_surf.get_height() // 2))
 
     def _render_action_button(self, surface: pygame.Surface, name: str, rect: pygame.Rect) -> None:
         mouse_pos = pygame.mouse.get_pos()
@@ -530,14 +709,16 @@ class GameScreen:
         surface: pygame.Surface,
         mx: int,
         my: int,
-        hovered_sq: Optional[Tuple[int, int]]
+        hovered_sq: Optional[Tuple[int, int]],
+        state: Optional[Any] = None
     ) -> None:
         """Displays an informative tactical card when hovering over any piece on the board."""
         if not hovered_sq:
             return
 
         r, c = hovered_sq
-        piece = self.engine.state.board.get_piece(r, c)
+        active_state = state if state is not None else self.engine.state
+        piece = active_state.board.get_piece(r, c)
         if not piece:
             return
 

@@ -91,9 +91,12 @@ class ChaosChessApp:
 
     def _handle_event(self, event: pygame.event.Event) -> None:
         # Check if Game Over result screen modal is active
-        if self.current_state == STATE_GAME and self.engine.state.is_game_over:
+        if self.current_state == STATE_GAME and self.engine.state.is_game_over and not getattr(self.game_screen, "is_replay_mode", False):
             res_action = self.result_screen.handle_event(event)
-            if res_action == "play_again":
+            if res_action == "replay":
+                self.game_screen.start_replay()
+                return
+            elif res_action == "play_again":
                 self._start_match(self.last_mode_name, self.last_mode_params)
                 return
             elif res_action == "menu":
@@ -146,6 +149,16 @@ class ChaosChessApp:
                     self._start_match("ai_vs_human", params)
 
         elif self.current_state == STATE_GAME:
+            # If match has concluded and we are not in replay review mode, ResultScreen handles user input
+            if self.engine.state.is_game_over and not getattr(self.game_screen, "is_replay_mode", False):
+                res_action = self.result_screen.handle_event(event)
+                if res_action == "menu":
+                    self.current_state = STATE_MENU
+                    return
+                elif res_action == "replay":
+                    self.game_screen.start_replay()
+                    return
+
             action = self.game_screen.handle_event(event)
             if action == "menu":
                 self.current_state = STATE_MENU
@@ -222,8 +235,8 @@ class ChaosChessApp:
             self.difficulty_select_screen.render(self.screen)
         elif self.current_state == STATE_GAME and self.game_screen:
             self.game_screen.render(self.screen)
-            # Render game over modal if match has ended
-            if self.engine.state.is_game_over:
+            # Render game over modal if match has ended and not reviewing replay
+            if self.engine.state.is_game_over and not getattr(self.game_screen, "is_replay_mode", False):
                 self.result_screen.render(self.screen, self.engine.state, self.engine.total_match_duration)
         elif self.current_state == STATE_ARENA:
             self.arena_screen.render(self.screen)

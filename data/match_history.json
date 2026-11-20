@@ -158,5 +158,55 @@
     "duration_seconds": 31.65,
     "red_captured_count": 1,
     "blue_captured_count": 0
+  },
+  {
+    "timestamp": "2026-11-20 19:16:24",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 7,
+    "total_moves": 6,
+    "duration_seconds": 17.78,
+    "red_captured_count": 3,
+    "blue_captured_count": 1
+  },
+  {
+    "timestamp": "2026-11-20 19:17:34",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 5,
+    "total_moves": 4,
+    "duration_seconds": 17.75,
+    "red_captured_count": 0,
+    "blue_captured_count": 0
+  },
+  {
+    "timestamp": "2026-11-20 19:20:53",
+    "winner": "blue",
+    "victory_reason": "Domination Victory",
+    "total_turns": 24,
+    "total_moves": 23,
+    "duration_seconds": 90.65,
+    "red_captured_count": 3,
+    "blue_captured_count": 6
+  },
+  {
+    "timestamp": "2026-11-20 19:22:51",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 13,
+    "total_moves": 12,
+    "duration_seconds": 56.88,
+    "red_captured_count": 3,
+    "blue_captured_count": 3
+  },
+  {
+    "timestamp": "2026-11-20 19:24:06",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 5,
+    "total_moves": 4,
+    "duration_seconds": 18.62,
+    "red_captured_count": 1,
+    "blue_captured_count": 1
   }
 ]
