@@ -110,17 +110,15 @@ class ResultScreen:
             ("Match Duration:", f"{round(match_duration, 1)} seconds"),
             ("Red Army Captures:", f"{len(game_state.captured_pieces['red'])} pieces"),
             ("Blue Army Captures:", f"{len(game_state.captured_pieces['blue'])} pieces"),
-            ("Red Consecutive Domination:", f"{game_state.red_consecutive_domination} turns"),
-            ("Blue Consecutive Domination:", f"{game_state.blue_consecutive_domination} turns"),
         ]
 
-        sy = self.modal_rect.y + 182
+        sy = self.modal_rect.y + 190
         for label, val in stats:
             lbl_surf = self.font_body.render(label, True, (160, 175, 200))
             val_surf = self.font_body.render(val, True, COLOR_TEXT_WHITE)
             surface.blit(lbl_surf, (self.modal_rect.x + 45, sy))
             surface.blit(val_surf, (self.modal_rect.right - val_surf.get_width() - 45, sy))
-            sy += 24
+            sy += 28
 
         # Buttons
         mouse_pos = pygame.mouse.get_pos()

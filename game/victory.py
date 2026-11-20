@@ -5,8 +5,8 @@ from typing import Optional, Tuple, List
 from config import (
     ROWS, COLS, TOTAL_SQUARES,
     KING, TEAM_RED, TEAM_BLUE,
-    VICTORY_ROYAL, VICTORY_DOMINATION, VICTORY_ELIMINATION, VICTORY_DRAW,
-    DOMINATION_SQUARES_REQUIRED, DOMINATION_TURNS_REQUIRED, DEFAULT_TURN_LIMIT
+    VICTORY_ROYAL, VICTORY_ELIMINATION, VICTORY_DRAW,
+    DEFAULT_TURN_LIMIT
 )
 from game.movement import get_piece_standard_moves
 
@@ -66,9 +66,9 @@ class VictoryChecker:
         Evaluates whether match is over.
         Prioritizes:
         1. Royal Victory (Capture King)
-        2. Domination Victory (15 squares for 3 turns)
-        3. Elimination Victory (All opposing pieces eliminated)
-        4. Draw / Stalemate
+        2. Elimination Victory (All opposing pieces eliminated)
+        3. Turn Limit Reached (Points Lead or Draw)
+        4. Stalemate (No Legal Moves)
         """
         red_pieces = game_state.get_team_pieces(TEAM_RED)
         blue_pieces = game_state.get_team_pieces(TEAM_BLUE)
@@ -76,20 +76,13 @@ class VictoryChecker:
         red_king_alive = any(p.piece_type == KING for p in red_pieces)
         blue_king_alive = any(p.piece_type == KING for p in blue_pieces)
 
-        # Check if at least one King existed at start or if kings are tracked
-        # If one team's King is captured while the other team has King or pieces alive:
+        # 1. Royal Victory: If one team's King is captured while opponent has King/pieces alive
         if not red_king_alive and blue_king_alive:
             return True, TEAM_BLUE, VICTORY_ROYAL
         if not blue_king_alive and red_king_alive:
             return True, TEAM_RED, VICTORY_ROYAL
 
-        # 2. Domination Victory: Control >= 15 of 28 squares for 3 consecutive turns
-        if game_state.red_consecutive_domination >= DOMINATION_TURNS_REQUIRED:
-            return True, TEAM_RED, VICTORY_DOMINATION
-        if game_state.blue_consecutive_domination >= DOMINATION_TURNS_REQUIRED:
-            return True, TEAM_BLUE, VICTORY_DOMINATION
-
-        # 3. Elimination Victory: check if an entire team is eliminated
+        # 2. Elimination Victory: check if an entire team is eliminated
         if len(red_pieces) == 0 and len(blue_pieces) == 0:
             return True, None, VICTORY_DRAW
         if len(red_pieces) == 0:
@@ -97,7 +90,7 @@ class VictoryChecker:
         if len(blue_pieces) == 0:
             return True, TEAM_RED, VICTORY_ELIMINATION
 
-        # 4. Turn Limit Reached
+        # 3. Turn Limit Reached
         if game_state.turn_count >= turn_limit:
             red_val = sum(p.value for p in red_pieces)
             blue_val = sum(p.value for p in blue_pieces)
@@ -107,7 +100,7 @@ class VictoryChecker:
                 return True, TEAM_BLUE, f"{VICTORY_DRAW} (Blue Points Lead)"
             return True, None, VICTORY_DRAW
 
-        # 5. Stalemate: Current player has no legal moves
+        # 4. Stalemate: Current player has no legal moves
         current_moves = game_state.get_all_legal_moves()
         if len(current_moves) == 0:
             opp = TEAM_BLUE if game_state.current_turn == TEAM_RED else TEAM_RED

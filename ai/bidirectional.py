@@ -30,7 +30,7 @@ class BidirectionalSearcher:
 
         # Strategic objectives:
         # 1. Opponent King position (Royal Victory)
-        # 2. Central Domination squares (3, 1) and (3, 2)
+        # 2. Central control squares (3, 1) and (3, 2)
         # 3. Enemy back row for pawns
         opp_team = TEAM_BLUE if team == TEAM_RED else TEAM_RED
         opp_pieces = game_state.get_team_pieces(opp_team)

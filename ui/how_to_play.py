@@ -99,7 +99,7 @@ class HowToPlayScreen:
                 ("THE 7 ROWS x 4 COLUMNS TACTICAL BATTLEFIELD", COLOR_TEXT_GOLD, True),
                 ("Chaos Chess is played on a compact, high-intensity 7x4 battlefield with exactly 28 squares.", COLOR_TEXT_WHITE, False),
                 ("Red Legion starts on Rows 0 & 1 (top); Blue Vanguard starts on Rows 5 & 6 (bottom).", (200, 210, 230), False),
-                ("Rows 2, 3, and 4 form the dynamic central arena where domination battles take place.", (200, 210, 230), False),
+                ("Rows 2, 3, and 4 form the dynamic central arena where intense skirmishes take place.", (200, 210, 230), False),
                 ("", COLOR_TEXT_WHITE, False),
                 ("SIX TACTICAL PIECE TYPES", COLOR_TEXT_GOLD, True),
                 ("• KING: Moves 1 square in any direction. Has exactly one Royal Shield ability per match.", COLOR_TEXT_WHITE, False),
@@ -144,15 +144,14 @@ class HowToPlayScreen:
         elif idx == 3:
             # Victory Conditions
             lines = [
-                ("FOUR PATHWAYS TO VICTORY", COLOR_TEXT_GOLD, True),
-                ("Matches are evaluated continuously by the engine across four distinct victory conditions:", COLOR_TEXT_WHITE, False),
+                ("THREE PATHWAYS TO VICTORY", COLOR_TEXT_GOLD, True),
+                ("Matches are evaluated continuously by the engine across three distinct victory conditions:", COLOR_TEXT_WHITE, False),
                 ("", COLOR_TEXT_WHITE, False),
                 ("1. ROYAL VICTORY: Assassinate the opposing army's King. Immediate match termination.", (255, 120, 130), False),
-                ("2. DOMINATION VICTORY: Exert tactical control over at least 15 of the 28 squares for 3 consecutive turns.", (255, 215, 60), False),
-                ("3. ELIMINATION VICTORY: Completely eliminate every opposing unit on the board.", (120, 220, 255), False),
-                ("4. TURN LIMIT / TIE-BREAKER: Reaching the turn limit (default 100) triggers point evaluation or draw.", (180, 190, 210), False),
+                ("2. ELIMINATION VICTORY: Completely eliminate every opposing unit on the battlefield.", (120, 220, 255), False),
+                ("3. TURN LIMIT / TIE-BREAKER: Reaching the turn limit (default 100) triggers material point evaluation or draw.", (180, 190, 210), False),
                 ("", COLOR_TEXT_WHITE, False),
-                ("Square control is computed from both direct piece presence and legal movement threat influence.", COLOR_TEXT_WHITE, False)
+                ("Stalemate occurs if a player has zero legal moves remaining, awarding the win to the opposing player.", COLOR_TEXT_WHITE, False)
             ]
         elif idx == 4:
             # AI Algorithms
@@ -161,7 +160,7 @@ class HowToPlayScreen:
                 ("Chaos Chess features eight separate, academically rigorous AI algorithms:", COLOR_TEXT_WHITE, False),
                 ("1. Depth First Search (DFS): Deep bounded tactical lookahead, threat detection, escape paths.", COLOR_TEXT_WHITE, False),
                 ("2. Best First Search: Heuristic priority queue ranking captures, King safety, center dominance.", COLOR_TEXT_WHITE, False),
-                ("3. Bidirectional Search: Simultaneous forward/backward pathfinding toward central domination objectives.", COLOR_TEXT_WHITE, False),
+                ("3. Bidirectional Search: Simultaneous forward/backward pathfinding toward central board objectives.", COLOR_TEXT_WHITE, False),
                 ("4. Monte Carlo Tree Search (MCTS): 4-stage UCT selection, expansion, random rollout simulation, and backpropagation.", COLOR_TEXT_WHITE, False),
                 ("5. Minimax: Complete adversarial game tree exploration with heuristic leaf evaluation.", COLOR_TEXT_WHITE, False),
                 ("6. Alpha-Beta Pruning: Optimized adversarial search with move ordering to prune redundant subtrees.", COLOR_TEXT_WHITE, False),

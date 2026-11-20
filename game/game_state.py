@@ -9,7 +9,7 @@ from config import (
     ABILITY_ROYAL_SHIELD, ABILITY_DOUBLE_STRIKE, ABILITY_FORTRESS,
     ABILITY_MAGIC_STEP, ABILITY_SUPER_JUMP, ABILITY_SACRIFICE,
     ABILITY_COSTS,
-    DOMINATION_SQUARES_REQUIRED, DEFAULT_TURN_LIMIT
+    DEFAULT_TURN_LIMIT
 )
 from game.piece import Piece
 from game.board import Board
@@ -150,24 +150,12 @@ class GameState:
             if p.frozen_turns > 0:
                 p.frozen_turns -= 1
 
-        # 6. Update Domination Counters
-        red_ctrl, blue_ctrl = VictoryChecker.calculate_board_control(self)
-        if red_ctrl >= DOMINATION_SQUARES_REQUIRED:
-            self.red_consecutive_domination += 1
-        else:
-            self.red_consecutive_domination = 0
-
-        if blue_ctrl >= DOMINATION_SQUARES_REQUIRED:
-            self.blue_consecutive_domination += 1
-        else:
-            self.blue_consecutive_domination = 0
-
-        # 7. Advance Turn
+        # 6. Advance Turn
         self.current_turn = next_team
         self.ability_used_this_turn = False
         self.turn_count += 1
 
-        # 8. Evaluate Victory Conditions
+        # 7. Evaluate Victory Conditions
         over, winner, reason = VictoryChecker.check_victory(self)
         if over:
             self.is_game_over = True

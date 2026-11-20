@@ -122,13 +122,5 @@ def evaluate_board(game_state, perspective_team: str) -> float:
     o_moves = len(game_state.get_all_legal_moves(opponent_team))
     score += (p_moves - o_moves) * 4.0
 
-    # Domination streak bonus
-    if perspective_team == TEAM_RED:
-        score += game_state.red_consecutive_domination * 50.0
-        score -= game_state.blue_consecutive_domination * 50.0
-    else:
-        score += game_state.blue_consecutive_domination * 50.0
-        score -= game_state.red_consecutive_domination * 50.0
-
     return score
 

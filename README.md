@@ -30,11 +30,10 @@
   - *Fog of War*: Mist shrouding the central rows.
   - *Earthquake*: Fissures fracturing the arena floor.
   - *Energy Boost*: Leyline surges granting both armies +2 Energy.
-- **4 Distinct Victory Conditions**:
+- **3 Distinct Victory Conditions**:
   1. *Royal Victory*: Assassinate the opposing army's King.
-  2. *Domination Victory*: Exert tactical dominance over >= 15 squares for 3 consecutive turns.
-  3. *Elimination Victory*: Annihilate all opposing pieces.
-  4. *Turn Limit / Draw*: Turn limit exhaustion (100 turns default).
+  2. *Elimination Victory*: Annihilate all opposing pieces.
+  3. *Turn Limit / Draw*: Turn limit exhaustion (100 turns default).
 - **3 Gameplay Modes**:
   - **AI vs AI**: Select any 2 algorithms and observe autonomous matches with real-time telemetry.
   - **Human vs AI**: Dedicated difficulty interface with 3 modes:

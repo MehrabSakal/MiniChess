@@ -5,7 +5,7 @@ import pytest
 from config import (
     KING, QUEEN, ROOK, PAWN,
     TEAM_RED, TEAM_BLUE,
-    VICTORY_ROYAL, VICTORY_DOMINATION, VICTORY_ELIMINATION
+    VICTORY_ROYAL, VICTORY_ELIMINATION
 )
 from game.board import Board
 from game.piece import Piece
@@ -71,4 +71,24 @@ def test_shield_blocks_capture():
     assert king_check.piece_type == KING
     assert not king_check.shielded
     assert not state.is_game_over
+
+
+def test_no_domination_victory():
+    """Dominating squares does NOT trigger match termination; domination victory is disabled."""
+    state = GameState()
+    # Blue has full army controlling board; Red has lone King in safe corner
+    state.board.set_piece(0, 0, Piece(KING, TEAM_RED, 0, 0))
+    state.board.set_piece(6, 3, Piece(KING, TEAM_BLUE, 6, 3))
+    state.board.set_piece(3, 1, Piece(QUEEN, TEAM_BLUE, 3, 1))
+    state.board.set_piece(3, 2, Piece(ROOK, TEAM_BLUE, 3, 2))
+    state.board.set_piece(4, 1, Piece(ROOK, TEAM_BLUE, 4, 1))
+
+    # Artificially set domination counters high
+    state.blue_consecutive_domination = 10
+    state.red_consecutive_domination = 10
+
+    over, winner, reason = VictoryChecker.check_victory(state)
+    assert not over
+    assert winner is None
+    assert reason is None
 

@@ -497,11 +497,6 @@ class GameScreen:
                 pygame.draw.rect(surface, (35, 40, 55), p_rect, border_radius=3)
                 pygame.draw.rect(surface, (60, 70, 90), p_rect, width=1, border_radius=3)
 
-        # Domination progress
-        dom_turns = active_state.red_consecutive_domination if team == TEAM_RED else active_state.blue_consecutive_domination
-        lbl_dom = self.font_small.render(f"Domination Streak: {dom_turns} / 3 turns", True, (180, 190, 210))
-        surface.blit(lbl_dom, (rect.x + 14, rect.y + 96))
-
         # CSP Generated Roster Composition & Equal Points
         roster = self.engine.csp_roster_summary.get(team, {})
         if roster:
@@ -514,19 +509,19 @@ class GameScreen:
             roster_str = " ".join(parts)
             lbl_csp_tag = self.font_small.render("CSP ROSTER:", True, COLOR_TEXT_GOLD)
             lbl_roster = self.font_small.render(roster_str, True, (220, 230, 255))
-            surface.blit(lbl_csp_tag, (rect.x + 14, rect.y + 114))
-            surface.blit(lbl_roster, (rect.x + 88, rect.y + 114))
+            surface.blit(lbl_csp_tag, (rect.x + 14, rect.y + 98))
+            surface.blit(lbl_roster, (rect.x + 88, rect.y + 98))
 
             # Total points (Strictly equal for both teams)
             pts = self.engine.team_material_points.get(team, 0)
             lbl_pts_tag = self.font_small.render("TOTAL POINTS:", True, (130, 210, 255))
             lbl_pts_val = self.font_small.render(f"{pts:,} PTS  [EQUAL]", True, (46, 204, 113))
-            surface.blit(lbl_pts_tag, (rect.x + 14, rect.y + 130))
-            surface.blit(lbl_pts_val, (rect.x + 104, rect.y + 130))
+            surface.blit(lbl_pts_tag, (rect.x + 14, rect.y + 118))
+            surface.blit(lbl_pts_val, (rect.x + 104, rect.y + 118))
 
         # Captured pieces rack
         lbl_cap = self.font_small.render("CAPTURED OPPONENTS:", True, COLOR_TEXT_MUTED)
-        surface.blit(lbl_cap, (rect.x + 14, rect.y + 150))
+        surface.blit(lbl_cap, (rect.x + 14, rect.y + 142))
 
         captured = active_state.captured_pieces[team]
         cx = rect.x + 14
