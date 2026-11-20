@@ -1,0 +1,12 @@
+{
+  "random_events_enabled": true,
+  "event_frequency_turns": 8,
+  "turn_limit": 100,
+  "sound_enabled": true,
+  "sound_volume": 0.7,
+  "music_enabled": true,
+  "ai_move_delay_ms": 300,
+  "animation_speed": 1.0,
+  "difficulty": "Medium",
+  "board_theme": "tavern_dungeon"
+}

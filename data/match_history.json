@@ -1,0 +1,162 @@
+[
+  {
+    "timestamp": "2026-11-14 00:05:40",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 17,
+    "total_moves": 16,
+    "duration_seconds": 6.76,
+    "red_captured_count": 2,
+    "blue_captured_count": 1
+  },
+  {
+    "timestamp": "2026-11-14 00:06:25",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 19,
+    "total_moves": 18,
+    "duration_seconds": 7.39,
+    "red_captured_count": 3,
+    "blue_captured_count": 3
+  },
+  {
+    "timestamp": "2026-11-14 00:06:34",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 11,
+    "total_moves": 10,
+    "duration_seconds": 4.26,
+    "red_captured_count": 3,
+    "blue_captured_count": 0
+  },
+  {
+    "timestamp": "2026-11-14 00:06:43",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 16,
+    "total_moves": 15,
+    "duration_seconds": 6.6,
+    "red_captured_count": 4,
+    "blue_captured_count": 2
+  },
+  {
+    "timestamp": "2026-11-14 00:13:56",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 11,
+    "total_moves": 10,
+    "duration_seconds": 62.59,
+    "red_captured_count": 3,
+    "blue_captured_count": 2
+  },
+  {
+    "timestamp": "2026-11-14 00:14:05",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 5,
+    "total_moves": 4,
+    "duration_seconds": 1.87,
+    "red_captured_count": 2,
+    "blue_captured_count": 0
+  },
+  {
+    "timestamp": "2026-11-14 00:14:26",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 13,
+    "total_moves": 12,
+    "duration_seconds": 5.54,
+    "red_captured_count": 2,
+    "blue_captured_count": 2
+  },
+  {
+    "timestamp": "2026-11-14 00:14:39",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 25,
+    "total_moves": 24,
+    "duration_seconds": 10.0,
+    "red_captured_count": 6,
+    "blue_captured_count": 2
+  },
+  {
+    "timestamp": "2026-11-14 00:30:48",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 9,
+    "total_moves": 8,
+    "duration_seconds": 109.73,
+    "red_captured_count": 2,
+    "blue_captured_count": 2
+  },
+  {
+    "timestamp": "2026-11-19 22:56:52",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 11,
+    "total_moves": 10,
+    "duration_seconds": 113.91,
+    "red_captured_count": 2,
+    "blue_captured_count": 2
+  },
+  {
+    "timestamp": "2026-11-19 22:58:18",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 21,
+    "total_moves": 20,
+    "duration_seconds": 6.31,
+    "red_captured_count": 5,
+    "blue_captured_count": 1
+  },
+  {
+    "timestamp": "2026-11-19 22:58:29",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 19,
+    "total_moves": 18,
+    "duration_seconds": 5.67,
+    "red_captured_count": 7,
+    "blue_captured_count": 4
+  },
+  {
+    "timestamp": "2026-11-20 16:16:37",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 3,
+    "total_moves": 2,
+    "duration_seconds": 0.29,
+    "red_captured_count": 1,
+    "blue_captured_count": 1
+  },
+  {
+    "timestamp": "2026-11-20 17:44:02",
+    "winner": "red",
+    "victory_reason": "Royal Victory",
+    "total_turns": 3,
+    "total_moves": 2,
+    "duration_seconds": 0.21,
+    "red_captured_count": 1,
+    "blue_captured_count": 1
+  },
+  {
+    "timestamp": "2026-11-20 18:44:37",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 15,
+    "total_moves": 14,
+    "duration_seconds": 43.08,
+    "red_captured_count": 6,
+    "blue_captured_count": 2
+  },
+  {
+    "timestamp": "2026-11-20 18:46:53",
+    "winner": "red",
+    "victory_reason": "Domination Victory",
+    "total_turns": 7,
+    "total_moves": 6,
+    "duration_seconds": 31.65,
+    "red_captured_count": 1,
+    "blue_captured_count": 0
+  }
+]
